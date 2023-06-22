@@ -1,6 +1,5 @@
 package com.ruanzong.blogsystem.config;
 
-import com.ruanzong.blogsystem.quartz.PostScoreRefreshJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +20,7 @@ public class QuartzConfig {
     @Bean
     public JobDetailFactoryBean postScoreRefreshJobDetail() {
         JobDetailFactoryBean factoryBean = new JobDetailFactoryBean();
-        factoryBean.setJobClass(PostScoreRefreshJob.class);
-        factoryBean.setName("postScoreRefreshJob");
-        factoryBean.setGroup("communityJobGroup");
+        factoryBean.setJobClass(com.ruanzong.blogsystem.quartz.PostScoreRefreshJob.class);
         factoryBean.setDurability(true);
         factoryBean.setRequestsRecovery(true);
         return factoryBean;

@@ -1,35 +1,27 @@
-package com.greate.community.controller;
+package com.ruanzong.blogsystem.controller;
 
-import com.greate.community.service.DataService;
+import com.alibaba.fastjson.JSONObject;
+import com.ruanzong.blogsystem.service.DataService;
+import com.ruanzong.blogsystem.util.CommunityConstant;
+import com.ruanzong.blogsystem.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 网站数据
  */
 @RestController
-public class DataController {
+public class DataController implements CommunityConstant {
 
     @Autowired
     private DataService dataService;
-
-    /**
-     * 进入统计界面
-     * @return
-     */
-    @GetMapping("/data")
-    public ResponseEntity<String> getDataPage() {
-        String viewPath = "/site/admin/data"; // 设置视图路径
-
-        return ResponseEntity.ok(viewPath);
-    }
 
     /**
      * 统计网站 UV
@@ -38,10 +30,15 @@ public class DataController {
      * @return
      */
     @PostMapping("/data/uv")
-    public ResponseEntity<Long> getUV(@DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
-                                      @DateTimeFormat(pattern = "yyyy-MM-dd") Date end) {
+    public ResponseEntity<String> getUV(@RequestBody Map<String, Object> time) {
+        Date start = new Date((Long)time.get("start"));
+        Date end = new Date((Long)time.get("end"));
         long uv = dataService.calculateUV(start, end);
-        return ResponseEntity.ok(uv);
+        JSONObject res = new JSONObject();
+        res.put("viewer_cnt", uv);
+        res.put("start", start.toString());
+        res.put("end", end.toString());
+        return ResponseEntity.ok(CommunityUtil.getJSONString(HTTP_OK, "操作成功" ,res));
     }
 
     /**
@@ -51,10 +48,15 @@ public class DataController {
      * @return
      */
     @PostMapping("/data/dau")
-    public ResponseEntity<Long> getDAU(@DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
-                                       @DateTimeFormat(pattern = "yyyy-MM-dd") Date end) {
+    public ResponseEntity<String> getDAU(@RequestBody JSONObject time) {
+        Date start = new Date((Long)time.get("start"));
+        Date end = new Date((Long)time.get("end"));
         long dau = dataService.calculateDAU(start, end);
-        return ResponseEntity.ok(dau);
+        JSONObject res = new JSONObject();
+        res.put("viewer_cnt", dau);
+        res.put("start", start.toString());
+        res.put("end", end.toString());
+        return ResponseEntity.ok(CommunityUtil.getJSONString(HTTP_OK, "操作成功" ,res));
     }
 
 }

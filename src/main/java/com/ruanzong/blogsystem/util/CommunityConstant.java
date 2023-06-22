@@ -57,4 +57,8 @@ public interface CommunityConstant {
     // 权限：版主
     String AUTHORITY_MODERATOR = "moderator";
 
+    int HTTP_OK = 200;
+
+    int PageLimit = 10;
+
 }

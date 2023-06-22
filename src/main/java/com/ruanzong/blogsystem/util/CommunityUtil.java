@@ -1,11 +1,19 @@
 package com.ruanzong.blogsystem.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.util.DigestUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -49,7 +57,7 @@ public class CommunityUtil {
                 json.put(key, map.get(key));
             }
         }
-        return json.toJSONString();
+        return JSONObject.toJSONString(json, SerializerFeature.WriteNullStringAsEmpty, SerializerFeature.WriteMapNullValue);
     }
 
     // 重载 getJSONString 方法，服务端方法可能不返回业务数据
@@ -86,15 +94,20 @@ public class CommunityUtil {
 
 
     /**
-     * 测试
-     * @param args
+     * BufferedImage 编码转换为 base64
+     * @param bufferedImage
+     * @return
      */
-    public static void main(String[] args) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", "Jack");
-        map.put("age", 18);
-        // {"msg":"ok","code":0,"name":"Jack","age":18}
-        System.out.println(getJSONString(0, "ok", map));
+    public static String BufferedImageToBase64(BufferedImage bufferedImage) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();//io流
+        try {
+            ImageIO.write(bufferedImage, "png", baos);//写入流中
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] bytes = baos.toByteArray();//转换成字节
+        String png_base64 = Base64.encodeBase64String(bytes);//转换成base64串
+        png_base64 = png_base64.replaceAll("\n", "").replaceAll("\r", "");//删除 \r\n
+        return "data:image/jpg;base64," + png_base64;
     }
-
 }

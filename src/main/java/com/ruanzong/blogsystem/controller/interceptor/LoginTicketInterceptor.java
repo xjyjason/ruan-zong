@@ -1,10 +1,10 @@
-package com.greate.community.controller.interceptor;
+package com.ruanzong.blogsystem.controller.interceptor;
 
-import com.greate.community.entity.LoginTicket;
-import com.greate.community.entity.User;
-import com.greate.community.service.UserService;
-import com.greate.community.util.CookieUtil;
-import com.greate.community.util.HostHolder;
+import com.ruanzong.blogsystem.entity.LoginTicket;
+import com.ruanzong.blogsystem.entity.User;
+import com.ruanzong.blogsystem.service.UserService;
+import com.ruanzong.blogsystem.util.CookieUtil;
+import com.ruanzong.blogsystem.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

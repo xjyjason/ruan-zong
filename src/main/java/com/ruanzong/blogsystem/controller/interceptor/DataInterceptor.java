@@ -1,8 +1,8 @@
-package com.greate.community.controller.interceptor;
+package com.ruanzong.blogsystem.controller.interceptor;
 
-import com.greate.community.entity.User;
-import com.greate.community.service.DataService;
-import com.greate.community.util.HostHolder;
+import com.ruanzong.blogsystem.entity.User;
+import com.ruanzong.blogsystem.service.DataService;
+import com.ruanzong.blogsystem.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;

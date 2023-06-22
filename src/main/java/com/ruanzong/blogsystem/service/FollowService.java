@@ -2,7 +2,7 @@ package com.ruanzong.blogsystem.service;
 
 import com.ruanzong.blogsystem.entity.User;
 import com.ruanzong.blogsystem.util.CommunityConstant;
-import com.greate.community.util.RedisKeyUtil;
+import com.ruanzong.blogsystem.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;

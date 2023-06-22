@@ -1,13 +1,13 @@
-package com.greate.community.controller;
+package com.ruanzong.blogsystem.controller;
 
-import com.greate.community.entity.Comment;
-import com.greate.community.entity.DiscussPost;
-import com.greate.community.entity.Page;
-import com.greate.community.entity.User;
-import com.greate.community.service.*;
-import com.greate.community.util.CommunityConstant;
-import com.greate.community.util.CommunityUtil;
-import com.greate.community.util.HostHolder;
+import com.ruanzong.blogsystem.entity.Comment;
+import com.ruanzong.blogsystem.entity.DiscussPost;
+import com.ruanzong.blogsystem.entity.Page;
+import com.ruanzong.blogsystem.entity.User;
+import com.ruanzong.blogsystem.service.*;
+import com.ruanzong.blogsystem.util.CommunityConstant;
+import com.ruanzong.blogsystem.util.CommunityUtil;
+import com.ruanzong.blogsystem.util.HostHolder;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -48,6 +48,26 @@ public class UserController implements CommunityConstant {
     @Autowired
     private CommentService commentService;
 
+    // 网站域名
+    @Value("${community.path.domain}")
+    private String domain;
+
+    // 项目名(访问路径)
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
+    @Value("${qiniu.key.access}")
+    private String accessKey;
+
+    @Value("${qiniu.key.secret}")
+    private String secretKey;
+
+    @Value("${qiniu.bucket.header.name}")
+    private String headerBucketName;
+
+    @Value("${qiniu.bucket.header.url}")
+    private String headerBucketUrl;
+
     // ...
 
     /**
@@ -78,17 +98,17 @@ public class UserController implements CommunityConstant {
      * @return
      */
     @PostMapping("/header/url")
-    public ResponseEntity<Map<String, Object>> updateHeaderUrl(@RequestParam("fileName") String fileName) {
+    public ResponseEntity<String> updateHeaderUrl(@RequestParam("fileName") String fileName) {
         if (StringUtils.isBlank(fileName)) {
             return ResponseEntity.badRequest()
-                    .body(Collections.singletonMap("message", "文件名不能为空"));
+                    .body(CommunityUtil.getJSONString(400, "文件名不能为空"));
         }
 
         // Update header URL in user profile
         String url = headerBucketUrl + "/" + fileName;
         userService.updateHeader(hostHolder.getUser().getId(), url);
 
-        return ResponseEntity.ok(Collections.emptyMap());
+        return ResponseEntity.ok(CommunityUtil.getJSONString(200, "更新成功"));
     }
 
     /**
@@ -98,7 +118,7 @@ public class UserController implements CommunityConstant {
      * @return
      */
     @PostMapping("/password")
-    public ResponseEntity<Map<String, Object>> updatePassword(
+    public ResponseEntity<String> updatePassword(
             @RequestParam("oldPassword") String oldPassword,
             @RequestParam("newPassword") String newPassword
     ) {
@@ -107,20 +127,20 @@ public class UserController implements CommunityConstant {
         String md5OldPassword = CommunityUtil.md5(oldPassword + user.getSalt());
         if (!user.getPassword().equals(md5OldPassword)) {
             return ResponseEntity.badRequest()
-                    .body(Collections.singletonMap("message", "原密码错误"));
+                    .body(CommunityUtil.getJSONString(400, "原密码错误"));
         }
 
         // Validate new password
         String md5NewPassword = CommunityUtil.md5(newPassword + user.getSalt());
         if (user.getPassword().equals(md5NewPassword)) {
             return ResponseEntity.badRequest()
-                    .body(Collections.singletonMap("message", "新密码和原密码相同"));
+                    .body(CommunityUtil.getJSONString(400, "新密码和原密码相同"));
         }
 
         // Update user password
         userService.updatePassword(user.getId(), newPassword);
 
-        return ResponseEntity.ok(Collections.emptyMap());
+        return ResponseEntity.ok(CommunityUtil.getJSONString(200, "修改成功"));
     }
 
     /**
@@ -129,10 +149,10 @@ public class UserController implements CommunityConstant {
      * @return
      */
     @GetMapping("/profile/{userId}")
-    public ResponseEntity<Map<String, Object>> getProfilePage(@PathVariable("userId") int userId) {
+    public ResponseEntity<String> getProfilePage(@PathVariable("userId") int userId) {
         User user = userService.findUserById(userId);
         if (user == null) {
-            throw new RuntimeException("该用户不存在");
+            return ResponseEntity.badRequest().body(CommunityUtil.getJSONString(400, "该用户不存在"));
         }
 
         Map<String, Object> response = new HashMap<>();
@@ -143,7 +163,7 @@ public class UserController implements CommunityConstant {
         response.put("hasFollowed", hostHolder.getUser() != null && followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId));
         response.put("tab", "profile");
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(CommunityUtil.getJSONString(200, "操作成功", response));
     }
 
     /**
@@ -152,27 +172,23 @@ public class UserController implements CommunityConstant {
      * @param page
      * @return
      */
-    @GetMapping("/discuss/{userId}")
-    public ResponseEntity<Map<String, Object>> getMyDiscussPosts(
-            @PathVariable("userId") int userId,
-            Page page
+    @GetMapping("/discuss/{userId}/{page}")
+    public ResponseEntity<String> getMyDiscussPosts(
+            @PathVariable("userId") int userId, @PathVariable("page") int page
     ) {
         User user = userService.findUserById(userId);
         if (user == null) {
-            throw new RuntimeException("该用户不存在");
+            return ResponseEntity.badRequest().body(CommunityUtil.getJSONString(400, "该用户不存在"));
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("user", user);
 
-        int rows = discussPostService.findDiscussPostRows(userId);
-        response.put("rows", rows);
+        int pageCount = discussPostService.findDiscussPostRows(userId);
+        response.put("page_cnt", pageCount);
+        response.put("page_current", page);
 
-        page.setLimit(5);
-        page.setPath("/user/discuss/" + userId);
-        page.setRows(rows);
-
-        List<DiscussPost> list = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit(), 0);
+        List<DiscussPost> list = discussPostService.findDiscussPosts(userId, page, PageLimit, 0);
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (list != null) {
             for (DiscussPost post : list) {
@@ -181,11 +197,11 @@ public class UserController implements CommunityConstant {
                 map.put("likeCount", likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId()));
                 discussPosts.add(map);
             }
+            response.put("discussPosts", discussPosts);
+            return ResponseEntity.ok(CommunityUtil.getJSONString(200, "获取成功", response));
+        }else {
+            return ResponseEntity.badRequest().body(CommunityUtil.getJSONString(400, "获取失败"));
         }
-        response.put("discussPosts", discussPosts);
-        response.put("tab", "mypost");
-
-        return ResponseEntity.ok(response);
     }
 
     /**
@@ -195,26 +211,22 @@ public class UserController implements CommunityConstant {
      * @return
      */
     @GetMapping("/comment/{userId}")
-    public ResponseEntity<Map<String, Object>> getMyComments(
+    public ResponseEntity<String> getMyComments(
             @PathVariable("userId") int userId,
-            Page page
+            @PathVariable("page") int page
     ) {
         User user = userService.findUserById(userId);
         if (user == null) {
-            throw new RuntimeException("该用户不存在");
+            return ResponseEntity.badRequest().body(CommunityUtil.getJSONString(400, "该用户不存在"));
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("user", user);
-
+        int offset = (page-1)/PageLimit;
         int commentCounts = commentService.findCommentCountByUserId(userId);
-        response.put("commentCounts", commentCounts);
+        response.put("comment_cnt", commentCounts);
 
-        page.setLimit(5);
-        page.setPath("/user/comment/" + userId);
-        page.setRows(commentCounts);
-
-        List<Comment> list = commentService.findCommentByUserId(userId, page.getOffset(), page.getLimit());
+        List<Comment> list = commentService.findCommentByUserId(userId, offset, PageLimit);
         List<Map<String, Object>> comments = new ArrayList<>();
         if (list != null) {
             for (Comment comment : list) {
@@ -232,10 +244,11 @@ public class UserController implements CommunityConstant {
 
                 comments.add(map);
             }
+            response.put("comments", comments);
+            return ResponseEntity.ok(CommunityUtil.getJSONString(200, "获取成功", response));
+        }else {
+            return ResponseEntity.badRequest().body(CommunityUtil.getJSONString(400, "获取失败"));
         }
-        response.put("comments", comments);
-        response.put("tab", "myreply");
 
-        return ResponseEntity.ok(response);
     }
 }

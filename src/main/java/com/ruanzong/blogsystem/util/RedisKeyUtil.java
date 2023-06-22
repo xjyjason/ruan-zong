@@ -1,4 +1,4 @@
-package com.greate.community.util;
+package com.ruanzong.blogsystem.util;
 
 /**
  * 生成 Redis 的 key

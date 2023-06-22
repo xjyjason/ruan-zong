@@ -1,44 +1,41 @@
-package com.greate.community.controller;
+package com.ruanzong.blogsystem.controller;
 
-import com.greate.community.entity.Event;
-import com.greate.community.entity.Page;
-import com.greate.community.entity.User;
-import com.greate.community.event.EventProducer;
-import com.greate.community.service.FollowService;
-import com.greate.community.service.UserService;
-import com.greate.community.util.CommunityConstant;
-import com.greate.community.util.CommunityUtil;
-import com.greate.community.util.HostHolder;
+import com.ruanzong.blogsystem.entity.Event;
+import com.ruanzong.blogsystem.entity.Page;
+import com.ruanzong.blogsystem.entity.User;
+import com.ruanzong.blogsystem.event.EventProducer;
+import com.ruanzong.blogsystem.service.FollowService;
+import com.ruanzong.blogsystem.service.UserService;
+import com.ruanzong.blogsystem.util.CommunityConstant;
+import com.ruanzong.blogsystem.util.CommunityUtil;
+import com.ruanzong.blogsystem.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 关注(目前只做了关注用户)
+ * 关注
  */
 @RestController
 @RequestMapping("/api/follow")
 public class FollowController implements CommunityConstant {
 
-    private final FollowService followService;
-    private final HostHolder hostHolder;
-    private final UserService userService;
-    private final EventProducer eventProducer;
+    @Autowired
+    private FollowService followService;
 
-    public FollowController(FollowService followService, HostHolder hostHolder,
-                            UserService userService, EventProducer eventProducer) {
-        this.followService = followService;
-        this.hostHolder = hostHolder;
-        this.userService = userService;
-        this.eventProducer = eventProducer;
-    }
+    @Autowired
+    private HostHolder hostHolder;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private EventProducer eventProducer;
 
     @PostMapping("/follow")
     public String follow(int entityType, int entityId) {

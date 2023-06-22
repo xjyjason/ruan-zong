@@ -1,17 +1,22 @@
-package com.greate.community.controller;
+package com.ruanzong.blogsystem.controller;
 
-import com.greate.community.entity.DiscussPost;
-import com.greate.community.entity.Page;
-import com.greate.community.entity.User;
-import com.greate.community.service.DiscussPostService;
-import com.greate.community.service.LikeService;
-import com.greate.community.service.UserService;
-import com.greate.community.util.CommunityConstant;
+import com.ruanzong.blogsystem.entity.DiscussPost;
+import com.ruanzong.blogsystem.entity.Page;
+import com.ruanzong.blogsystem.entity.User;
+import com.ruanzong.blogsystem.service.DiscussPostService;
+import com.ruanzong.blogsystem.service.LikeService;
+import com.ruanzong.blogsystem.service.UserService;
+import com.ruanzong.blogsystem.util.CommunityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +46,6 @@ public class IndexController implements CommunityConstant {
 
         return ResponseEntity.ok(response);
     }
-}
 
     /**
      * 进入首页

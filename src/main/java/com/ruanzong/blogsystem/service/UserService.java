@@ -6,7 +6,7 @@ import com.ruanzong.blogsystem.entity.User;
 import com.ruanzong.blogsystem.util.CommunityConstant;
 import com.ruanzong.blogsystem.util.CommunityUtil;
 import com.ruanzong.blogsystem.util.MailClient;
-import com.greate.community.util.RedisKeyUtil;
+import com.ruanzong.blogsystem.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

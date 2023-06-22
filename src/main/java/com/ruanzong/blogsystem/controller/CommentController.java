@@ -1,61 +1,40 @@
-package com.greate.community.controller;
+package com.ruanzong.blogsystem.controller;
 
-import com.greate.community.entity.Comment;
-import com.greate.community.entity.DiscussPost;
-import com.greate.community.entity.Event;
-import com.greate.community.event.EventProducer;
-import com.greate.community.service.CommentService;
-import com.greate.community.service.DiscussPostService;
-import com.greate.community.util.CommunityConstant;
-import com.greate.community.util.HostHolder;
-import com.greate.community.util.RedisKeyUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.ruanzong.blogsystem.entity.Comment;
+import com.ruanzong.blogsystem.entity.DiscussPost;
+import com.ruanzong.blogsystem.entity.Event;
+import com.ruanzong.blogsystem.event.EventProducer;
+import com.ruanzong.blogsystem.service.CommentService;
+import com.ruanzong.blogsystem.service.DiscussPostService;
+import com.ruanzong.blogsystem.util.CommunityConstant;
+import com.ruanzong.blogsystem.util.CommunityUtil;
+import com.ruanzong.blogsystem.util.HostHolder;
+import com.ruanzong.blogsystem.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
-/**
- * 评论/回复
- */
-@RestController
-@RequestMapping("/api/comments")
-public class CommentController implements CommunityConstant {
-
-    @Autowired
-    private HostHolder hostHolder;
-
-    @Autowired
-    private CommentService commentService;
-
-    @Autowired
-    private DiscussPostService discussPostService;
-
-    @Autowired
-    private EventProducer eventProducer;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
-
-    /**
-     * 添加评论
-     * @param discussPostId
-     * @param comment
-     * @return
-     */
    @RestController
 @RequestMapping("/api/comments")
-public class CommentController {
-    private final CommentService commentService;
-    private final EventProducer eventProducer;
+public class CommentController implements CommunityConstant{
+       @Autowired
+       private HostHolder hostHolder;
 
-    public CommentController(CommentService commentService, EventProducer eventProducer) {
-        this.commentService = commentService;
-        this.eventProducer = eventProducer;
-    }
+       @Autowired
+       private CommentService commentService;
+
+       @Autowired
+       private DiscussPostService discussPostService;
+       @Autowired
+       private EventProducer eventProducer;
+
+       @Autowired
+       private RedisTemplate redisTemplate;
+
 
     @PostMapping("/add/{discussPostId}")
     public ResponseEntity<String> addComment(@PathVariable("discussPostId") int discussPostId, @RequestBody Comment comment) {
@@ -95,7 +74,11 @@ public class CommentController {
             redisTemplate.opsForSet().add(redisKey, discussPostId);
         }
 
+        JSONObject res = new JSONObject();
+        res.put("discussPostId", discussPostId);
         // 返回成功的响应
-        return ResponseEntity.ok("Comment added successfully");
+        return ResponseEntity.ok(CommunityUtil.getJSONString(
+                HTTP_OK, "操作成功" ,res
+        ));
     }
 }

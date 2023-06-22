@@ -5,7 +5,7 @@ import com.ruanzong.blogsystem.service.DiscussPostService;
 import com.ruanzong.blogsystem.service.ElasticsearchService;
 import com.ruanzong.blogsystem.service.LikeService;
 import com.ruanzong.blogsystem.util.CommunityConstant;
-import com.greate.community.util.RedisKeyUtil;
+import com.ruanzong.blogsystem.util.RedisKeyUtil;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

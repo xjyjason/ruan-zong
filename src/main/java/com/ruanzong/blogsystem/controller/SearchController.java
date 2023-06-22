@@ -1,16 +1,18 @@
-package com.greate.community.controller;
+package com.ruanzong.blogsystem.controller;
 
-import com.greate.community.entity.DiscussPost;
-import com.greate.community.entity.Page;
-import com.greate.community.service.DiscussPostService;
-import com.greate.community.service.ElasticsearchService;
-import com.greate.community.service.LikeService;
-import com.greate.community.service.UserService;
-import com.greate.community.util.CommunityConstant;
+import com.ruanzong.blogsystem.entity.DiscussPost;
+import com.ruanzong.blogsystem.entity.Page;
+import com.ruanzong.blogsystem.service.DiscussPostService;
+import com.ruanzong.blogsystem.service.ElasticsearchService;
+import com.ruanzong.blogsystem.service.LikeService;
+import com.ruanzong.blogsystem.service.UserService;
+import com.ruanzong.blogsystem.util.CommunityConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
@@ -19,7 +21,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/search")
-public class SearchApiController implements CommunityConstant {
+public class SearchController implements CommunityConstant {
 
     @Autowired
     private ElasticsearchService elasticsearchService;
