@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -103,6 +104,11 @@ public class UserController implements CommunityConstant {
             return ResponseEntity.badRequest()
                     .body(CommunityUtil.getJSONString(400, "文件名不能为空"));
         }
+        User user = hostHolder.getUser();
+        if(user == null){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(CommunityUtil.getJSONString(403, "您还未登录"));
+        }
 
         // Update header URL in user profile
         String url = headerBucketUrl + "/" + fileName;
@@ -124,6 +130,10 @@ public class UserController implements CommunityConstant {
     ) {
         // Validate old password
         User user = hostHolder.getUser();
+        if(user == null){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(CommunityUtil.getJSONString(403, "您还未登录"));
+        }
         String md5OldPassword = CommunityUtil.md5(oldPassword + user.getSalt());
         if (!user.getPassword().equals(md5OldPassword)) {
             return ResponseEntity.badRequest()
