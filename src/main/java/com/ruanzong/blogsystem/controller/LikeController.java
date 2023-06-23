@@ -1,5 +1,6 @@
 package com.ruanzong.blogsystem.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ruanzong.blogsystem.entity.Event;
 import com.ruanzong.blogsystem.entity.User;
 import com.ruanzong.blogsystem.event.EventProducer;
@@ -10,11 +11,10 @@ import com.ruanzong.blogsystem.util.HostHolder;
 import com.ruanzong.blogsystem.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,10 +46,25 @@ public class LikeController implements CommunityConstant {
      * @param postId 帖子的 id (点赞了哪个帖子，点赞的评论属于哪个帖子，点赞的回复属于哪个帖子)
      * @return
      */
-    @PostMapping("/like")
-    @ResponseBody
-    public String like(int entityType, int entityId, int entityUserId, int postId) {
+    @PostMapping("/to-like")
+    public ResponseEntity<String> like(@RequestBody JSONObject likeMessage) {
         User user = hostHolder.getUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(CommunityUtil.getJSONString(403, "您还未登录"));
+        }
+        Object _entityType = likeMessage.get("entityType");
+        Object _entityId = likeMessage.get("entityId");
+        Object _entityUserId = likeMessage.get("entityUserId");
+        Object _postId = likeMessage.get("postId");
+        if(_postId == null || _entityId == null || _entityType == null || _entityUserId == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(CommunityUtil.getJSONString(400, "请输入信息"));
+        }
+        int entityType = (int) _entityType;
+        int entityId = (int) _entityId;
+        int entityUserId = (int) _entityUserId;
+        int postId = (int) _postId;
         // 点赞
         likeService.like(user.getId(), entityType, entityId, entityUserId);
         // 点赞数量
@@ -79,7 +94,7 @@ public class LikeController implements CommunityConstant {
             redisTemplate.opsForSet().add(redisKey, postId);
         }
 
-        return CommunityUtil.getJSONString(0, null, map);
+        return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "点赞成功", map));
     }
 
 }

@@ -34,7 +34,7 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.mysql</groupId>
+            <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.47</version> <!--注意此处的大版本要和 MySQL 的大版本一致-->
         </dependency>

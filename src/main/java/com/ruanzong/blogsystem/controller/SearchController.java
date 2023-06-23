@@ -7,7 +7,9 @@ import com.ruanzong.blogsystem.service.ElasticsearchService;
 import com.ruanzong.blogsystem.service.LikeService;
 import com.ruanzong.blogsystem.service.UserService;
 import com.ruanzong.blogsystem.util.CommunityConstant;
+import com.ruanzong.blogsystem.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,18 +36,18 @@ public class SearchController implements CommunityConstant {
 
     /**
      * 搜索
-     * GET /api/search?keyword=xxx&page=1&limit=10
+     * GET /api/search?keyword=xxx&page=1
      * @param keyword 关键词
      * @param page    分页信息
      * @return 搜索结果
      */
     @GetMapping
-    public Map<String, Object> search(String keyword, Page page) {
+    public ResponseEntity<String> search(String keyword, int page) {
         Map<String, Object> result = new HashMap<>();
-
+        int offset = (page-1) / PageLimit;
         // 搜索帖子
         org.springframework.data.domain.Page<DiscussPost> searchResult =
-                elasticsearchService.searchDiscussPost(keyword, page.getCurrent() - 1, page.getLimit());
+                elasticsearchService.searchDiscussPost(keyword, offset, PageLimit);
         // 聚合数据
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (searchResult != null) {
@@ -65,11 +67,10 @@ public class SearchController implements CommunityConstant {
         result.put("discussPosts", discussPosts);
         result.put("keyword", keyword);
 
-        // 设置分页
-        page.setPath("/api/search");
-        page.setRows(searchResult == null ? 0 : (int) searchResult.getTotalElements());
-        result.put("page", page);
+        int resultCount = searchResult == null ? 0 : (int) searchResult.getTotalElements();
+        result.put("page_current", page);
+        result.put("page_cnt", resultCount);
 
-        return result;
+        return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "查询成功", result));
     }
 }

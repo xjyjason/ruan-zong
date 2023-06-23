@@ -1,5 +1,6 @@
 package com.ruanzong.blogsystem.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ruanzong.blogsystem.entity.DiscussPost;
 import com.ruanzong.blogsystem.entity.Page;
 import com.ruanzong.blogsystem.entity.User;
@@ -7,15 +8,13 @@ import com.ruanzong.blogsystem.service.DiscussPostService;
 import com.ruanzong.blogsystem.service.LikeService;
 import com.ruanzong.blogsystem.service.UserService;
 import com.ruanzong.blogsystem.util.CommunityConstant;
+import com.ruanzong.blogsystem.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 import java.util.ArrayList;
@@ -39,14 +38,6 @@ public class IndexController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
-       @GetMapping("/")
-    public ResponseEntity<Map<String, String>> root() {
-        Map<String, String> response = new HashMap<>();
-        response.put("forward", "/index"); // 设置转发路径
-
-        return ResponseEntity.ok(response);
-    }
-
     /**
      * 进入首页
      * @param model
@@ -54,14 +45,15 @@ public class IndexController implements CommunityConstant {
      * @param orderMode 默认是 0（最新）
      * @return
      */
-    @GetMapping("/index")
-    public String getIndexPage(Model model, Page page, @RequestParam(name = "orderMode", defaultValue = "0") int orderMode) {
+    @GetMapping("/{page}")
+    public ResponseEntity<String> getIndexPage(@RequestParam(name = "orderMode", defaultValue = "0") int orderMode, @PathVariable("page") int page) {
         // 获取总页数
-        page.setRows(discussPostService.findDiscussPostRows(0));
-        page.setPath("/index?orderMode=" + orderMode);
+        int pageCount =  discussPostService.findDiscussPostRows(0);
+        int offset = (page-1) / PageLimit;
+        JSONObject res = new JSONObject();
 
         // 分页查询
-        List<DiscussPost> list = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit(), orderMode);
+        List<DiscussPost> list = discussPostService.findDiscussPosts(0, offset, PageLimit, orderMode);
         // 封装帖子和该帖子对应的用户信息
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (list != null) {
@@ -76,9 +68,11 @@ public class IndexController implements CommunityConstant {
                 discussPosts.add(map);
             }
         }
-        model.addAttribute("discussPosts", discussPosts);
-        model.addAttribute("orderMode", orderMode);
-        return "index";
+        res.put("discussPosts", discussPosts);
+        res.put("orderMode", orderMode);
+        res.put("page_cnt", pageCount);
+        res.put("page_current", page);
+        return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "获取成功", res));
     }
 
 
@@ -87,12 +81,11 @@ public class IndexController implements CommunityConstant {
      * 进入 500 错误界面
      * @return
      */
- @GetMapping("/error")
-    public ResponseEntity<String> handleServerError() {
-        String errorMessage = "服务器发生错误"; // 设置错误信息
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
-    }
+     @GetMapping("/error")
+     public ResponseEntity<String> handleServerError() {
+         String errorMessage = "服务器发生错误"; // 设置错误信息
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommunityUtil.getJSONString(500, errorMessage));
+     }
 
 
     /**
@@ -103,7 +96,7 @@ public class IndexController implements CommunityConstant {
     public ResponseEntity<String> handleDeniedError() {
         String errorMessage = "没有权限访问"; // 设置错误信息
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(CommunityUtil.getJSONString(403, errorMessage));
     }
 
 }
