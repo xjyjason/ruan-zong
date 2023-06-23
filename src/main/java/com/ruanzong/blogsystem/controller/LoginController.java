@@ -117,7 +117,6 @@ public class LoginController implements CommunityConstant {
      * @param checkCode 用户输入的图片验证码
      * @return 失败则返回原因, 验证成功返回 "",
      */
-    @PostMapping("/check-kaptcha")
     private String checkKaptchaCode(String kaptchaOwner, String checkCode) {
         if (StringUtils.isBlank(checkCode)) {
             return "未发现输入的图片验证码";
