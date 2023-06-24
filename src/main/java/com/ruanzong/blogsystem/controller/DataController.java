@@ -6,9 +6,11 @@ import com.ruanzong.blogsystem.util.CommunityConstant;
 import com.ruanzong.blogsystem.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -18,6 +20,7 @@ import java.util.Map;
  * 网站数据
  */
 @RestController
+@RequestMapping("/api/data")
 public class DataController implements CommunityConstant {
 
     @Autowired
@@ -29,10 +32,13 @@ public class DataController implements CommunityConstant {
      * @param end
      * @return
      */
-    @PostMapping("/data/uv")
+    @PostMapping("/uv")
     public ResponseEntity<String> getUV(@RequestBody Map<String, Object> time) {
-        Date start = new Date((Long)time.get("start"));
-        Date end = new Date((Long)time.get("end"));
+        Date start = new Date(Long.parseLong(time.get("start").toString()));
+        Date end = new Date(Long.parseLong(time.get("end").toString()));
+        if(start.after(end)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommunityUtil.getJSONString(400, "请保证起始时间在结束时间之前"));
+        }
         long uv = dataService.calculateUV(start, end);
         JSONObject res = new JSONObject();
         res.put("viewer_cnt", uv);
@@ -47,10 +53,13 @@ public class DataController implements CommunityConstant {
      * @param end
      * @return
      */
-    @PostMapping("/data/dau")
+    @PostMapping("/dau")
     public ResponseEntity<String> getDAU(@RequestBody JSONObject time) {
-        Date start = new Date((Long)time.get("start"));
-        Date end = new Date((Long)time.get("end"));
+        Date start = new Date(Long.parseLong(time.get("start").toString()));
+        Date end = new Date(Long.parseLong(time.get("end").toString()));
+        if(start.after(end)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommunityUtil.getJSONString(400, "请保证起始时间在结束时间之前"));
+        }
         long dau = dataService.calculateDAU(start, end);
         JSONObject res = new JSONObject();
         res.put("viewer_cnt", dau);
