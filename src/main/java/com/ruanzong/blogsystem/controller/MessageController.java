@@ -257,7 +257,7 @@ public class MessageController implements CommunityConstant {
      * @return
      */
     @GetMapping("/notice/detail/{topic}/{page}")
-    public ResponseEntity<String> getNoticeDetail(@PathVariable("topic") String topic, int page) {
+    public ResponseEntity<String> getNoticeDetail(@PathVariable("topic") String topic, @PathVariable("page") int page) {
         User user = hostHolder.getUser();
         Map<String, Object> result = new HashMap<>();
 
