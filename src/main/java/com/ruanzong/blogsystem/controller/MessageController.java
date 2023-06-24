@@ -2,7 +2,6 @@ package com.ruanzong.blogsystem.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ruanzong.blogsystem.entity.Message;
-import com.ruanzong.blogsystem.entity.Page;
 import com.ruanzong.blogsystem.entity.User;
 import com.ruanzong.blogsystem.service.MessageService;
 import com.ruanzong.blogsystem.service.UserService;

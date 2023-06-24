@@ -1,11 +1,15 @@
 package com.ruanzong.blogsystem.entity;
 
+import lombok.Data;
+
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 封装事件（用于系统通知）
  */
+@Data
 public class Event {
 
     private String topic; // 事件类型

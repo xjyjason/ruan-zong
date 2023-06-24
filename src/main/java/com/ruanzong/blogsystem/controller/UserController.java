@@ -2,7 +2,6 @@ package com.ruanzong.blogsystem.controller;
 
 import com.ruanzong.blogsystem.entity.Comment;
 import com.ruanzong.blogsystem.entity.DiscussPost;
-import com.ruanzong.blogsystem.entity.Page;
 import com.ruanzong.blogsystem.entity.User;
 import com.ruanzong.blogsystem.service.*;
 import com.ruanzong.blogsystem.util.CommunityConstant;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -125,8 +125,8 @@ public class UserController implements CommunityConstant {
      */
     @PostMapping("/password")
     public ResponseEntity<String> updatePassword(
-            @RequestParam("oldPassword") String oldPassword,
-            @RequestParam("newPassword") String newPassword
+            @Validated @RequestParam("oldPassword") String oldPassword,
+            @Validated @RequestParam("newPassword") String newPassword
     ) {
         // Validate old password
         User user = hostHolder.getUser();

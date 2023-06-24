@@ -1,10 +1,13 @@
 package com.ruanzong.blogsystem.entity;
 
+import lombok.Data;
+
 import java.util.Date;
 
 /**
  * 评论
  */
+@Data
 public class Comment {
 
     private int id;

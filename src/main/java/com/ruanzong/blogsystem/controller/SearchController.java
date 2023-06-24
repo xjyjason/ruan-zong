@@ -1,7 +1,6 @@
 package com.ruanzong.blogsystem.controller;
 
 import com.ruanzong.blogsystem.entity.DiscussPost;
-import com.ruanzong.blogsystem.entity.Page;
 import com.ruanzong.blogsystem.service.DiscussPostService;
 import com.ruanzong.blogsystem.service.ElasticsearchService;
 import com.ruanzong.blogsystem.service.LikeService;

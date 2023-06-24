@@ -3,7 +3,6 @@ package com.ruanzong.blogsystem.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ruanzong.blogsystem.entity.Event;
-import com.ruanzong.blogsystem.entity.Page;
 import com.ruanzong.blogsystem.entity.User;
 import com.ruanzong.blogsystem.event.EventProducer;
 import com.ruanzong.blogsystem.service.FollowService;
@@ -51,8 +50,8 @@ public class FollowController implements CommunityConstant {
         if (_entityId == null || _entityType == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommunityUtil.getJSONString(400, "请求失败"));
         }
-        int entityId = (int)_entityId;
-        int entityType = (int)_entityType;
+        int entityId = Integer.parseInt(_entityId.toString());
+        int entityType = Integer.parseInt(_entityType.toString());
         followService.follow(user.getId(), entityType, entityId);
 
         // 触发关注事件（系统通知）
@@ -78,8 +77,8 @@ public class FollowController implements CommunityConstant {
         if (_entityId == null || _entityType == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CommunityUtil.getJSONString(400, "请求失败"));
         }
-        int entityId = (int)_entityId;
-        int entityType = (int)_entityType;
+        int entityId = Integer.parseInt(_entityId.toString());
+        int entityType = Integer.parseInt(_entityType.toString());
         followService.unfollow(user.getId(), entityType, entityId);
 
         return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "已取消关注"));
@@ -104,20 +103,20 @@ public class FollowController implements CommunityConstant {
         int offset = (page-1)/PageLimit;
         // 获取关注列表
         List<Map<String, Object>> userList = followService.findFollowees(userId, offset, PageLimit);
-
+        Map<String, Object> result = new HashMap<>();
         if (userList != null) {
             for (Map<String, Object> map : userList) {
                 User u = (User) map.get("user"); // 被关注的用户
                 map.put("hasFollowed", hasFollowed(u.getId())); // 判断当前登录用户是否已关注这个关注列表中的某个用户
             }
+            result.put("user", user);
+            result.put("page_current", page);
+            result.put("follows", userList);
+            result.put("page_cnt", followCount);
+            return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "获取关注列表成功", result));
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommunityUtil.getJSONString(404, "获取关注列表失败"));
         }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("user", user);
-        result.put("page_current", page);
-        result.put("follows", userList);
-        result.put("page_current", followCount);
-        return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "获取关注列表成功", result));
     }
 
     /**
@@ -146,15 +145,15 @@ public class FollowController implements CommunityConstant {
                 User u = (User) map.get("user"); // 被关注的用户
                 map.put("hasFollowed", hasFollowed(u.getId())); // 判断当前登录用户是否已关注这个关注列表中的某个用户
             }
+            Map<String, Object> result = new HashMap<>();
+            result.put("user", user);
+            result.put("page_current", page);
+            result.put("users", userList);
+            result.put("follwer_cnt", followerCount);
+            return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "获取粉丝列表成功", result));
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommunityUtil.getJSONString(404, "获取粉丝列表失败"));
         }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("user", user);
-        result.put("page", page);
-        result.put("users", userList);
-        result.put("follwer_cnt", followerCount);
-
-        return ResponseEntity.ok().body(CommunityUtil.getJSONString(0, "获取粉丝列表成功", result));
     }
 
 

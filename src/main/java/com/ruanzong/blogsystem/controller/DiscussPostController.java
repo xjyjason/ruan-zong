@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
@@ -159,8 +160,8 @@ public class DiscussPostController implements CommunityConstant {
 
     @GetMapping("/comments")
     public  ResponseEntity<String> getComments(
-            @RequestParam(value="discussPostId", required=true) int discussPostId,
-            @RequestParam(value="pageId", required=true) int pageId) {
+            @Validated @RequestParam(value="discussPostId", required=true) int discussPostId,
+            @Validated @RequestParam(value="pageId", required=true) int pageId) {
 
         JSONObject res = new JSONObject();
         DiscussPost discussPost = discussPostService.findDiscussPostById(discussPostId);
@@ -237,7 +238,7 @@ public class DiscussPostController implements CommunityConstant {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(CommunityUtil.getJSONString(400, "帖子id为空"));
         }
-        int id = (int)_id;
+        int id = Integer.parseInt(_id.toString());
         discussPostService.updateType(id, 1);
 
         // 触发发帖事件，通过消息队列将其存入 Elasticsearch 服务器
@@ -258,7 +259,7 @@ public class DiscussPostController implements CommunityConstant {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(CommunityUtil.getJSONString(400, "帖子id为空"));
         }
-        int id = (int)_id;
+        int id = Integer.parseInt(_id.toString());
         discussPostService.updateStatus(id, 1);
 
         // 触发发帖事件，通过消息队列将其存入 Elasticsearch 服务器
@@ -283,7 +284,7 @@ public class DiscussPostController implements CommunityConstant {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(CommunityUtil.getJSONString(400, "帖子id为空"));
         }
-        int id = (int)_id;
+        int id = Integer.parseInt(_id.toString());
         discussPostService.updateStatus(id, 2);
 
         // 触发删帖事件，通过消息队列更新 Elasticsearch 服务器

@@ -2,7 +2,6 @@ package com.ruanzong.blogsystem.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ruanzong.blogsystem.entity.DiscussPost;
-import com.ruanzong.blogsystem.entity.Page;
 import com.ruanzong.blogsystem.entity.User;
 import com.ruanzong.blogsystem.service.DiscussPostService;
 import com.ruanzong.blogsystem.service.LikeService;
@@ -67,12 +66,14 @@ public class IndexController implements CommunityConstant {
 
                 discussPosts.add(map);
             }
+            res.put("discussPosts", discussPosts);
+            res.put("orderMode", orderMode);
+            res.put("page_cnt", pageCount);
+            res.put("page_current", page);
+            return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "获取成功", res));
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CommunityUtil.getJSONString(404, "获取失败"));
         }
-        res.put("discussPosts", discussPosts);
-        res.put("orderMode", orderMode);
-        res.put("page_cnt", pageCount);
-        res.put("page_current", page);
-        return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "获取成功", res));
     }
 
 

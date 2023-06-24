@@ -61,10 +61,10 @@ public class LikeController implements CommunityConstant {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(CommunityUtil.getJSONString(400, "请输入信息"));
         }
-        int entityType = (int) _entityType;
-        int entityId = (int) _entityId;
-        int entityUserId = (int) _entityUserId;
-        int postId = (int) _postId;
+        int entityType = Integer.parseInt(_entityType.toString());
+        int entityId = Integer.parseInt(_entityId.toString());
+        int entityUserId = Integer.parseInt(_entityUserId.toString());
+        int postId = Integer.parseInt(_postId.toString());
         // 点赞
         likeService.like(user.getId(), entityType, entityId, entityUserId);
         // 点赞数量

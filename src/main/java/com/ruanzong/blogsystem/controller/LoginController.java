@@ -56,7 +56,6 @@ public class LoginController implements CommunityConstant {
     public ResponseEntity<String> register(@RequestBody User user) {
         Map<String, Object> err = userService.register(user);
         if (err == null || err.isEmpty()) {
-
             return ResponseEntity.ok().body(CommunityUtil.getJSONString(200, "注册成功, 我们已经向您的邮箱发送了一封激活邮件，请尽快激活!"));
         } else {
             return ResponseEntity.badRequest().body(CommunityUtil.getJSONString(400, "注册失败", err));

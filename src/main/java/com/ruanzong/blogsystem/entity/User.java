@@ -1,17 +1,22 @@
 package com.ruanzong.blogsystem.entity;
 
+import lombok.Data;
+
+import javax.validation.constraints.Email;
 import java.util.Date;
 
 /**
  * 用户
  * 对应数据库表 `user`
  */
+@Data
 public class User {
 
     private int id;
     private String username;
     private String password;
     private String salt;
+    @Email(message = "请填写正确的邮箱地址")
     private String email;
     private int type;
     private int status;

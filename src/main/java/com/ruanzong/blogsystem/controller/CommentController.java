@@ -14,6 +14,7 @@ import com.ruanzong.blogsystem.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -37,7 +38,7 @@ public class CommentController implements CommunityConstant{
 
 
     @PostMapping("/add/{discussPostId}")
-    public ResponseEntity<String> addComment(@PathVariable("discussPostId") int discussPostId, @RequestBody Comment comment) {
+    public ResponseEntity<String> addComment(@PathVariable("discussPostId") int discussPostId, @Validated @RequestBody Comment comment) {
         comment.setUserId(hostHolder.getUser().getId());
         comment.setStatus(0);
         comment.setCreateTime(new Date());
